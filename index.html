@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Verificador de Lotes - Put Away</title>
+<style>
+  :root {
+    --azul: #022366;
+    --gris: #F5F5F2;
+    --verde: #27ae60;
+    --rojo: #e74c3c;
+  }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: var(--gris);
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: var(--azul);
+  }
+
+  header {
+    background-color: var(--azul);
+    color: white;
+    padding: 20px 0;
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  main {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .input-card {
+    background-color: white;
+    width: 400px;
+    padding: 25px;
+    margin: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  h3 {
+    margin-bottom: 10px;
+  }
+
+  input {
+    font-size: 22px;
+    padding: 10px;
+    width: 80%;
+    text-align: center;
+    border: 2px solid var(--azul);
+    border-radius: 8px;
+    outline: none;
+  }
+
+  input:focus {
+    border-color: #294b99;
+    box-shadow: 0 0 5px rgba(2,35,102,0.4);
+  }
+
+  #resultado {
+    font-size: 36px;
+    margin-top: 30px;
+    font-weight: bold;
+    padding: 20px;
+    width: 80%;
+    border-radius: 12px;
+  }
+
+  .ok {
+    color: var(--verde);
+    background-color: #dff6e0;
+  }
+
+  .error {
+    color: var(--rojo);
+    background-color: #fde2e2;
+  }
+
+  button {
+    background-color: var(--azul);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 25px;
+    font-size: 18px;
+    margin-top: 25px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  button:hover {
+    background-color: #0a3ea1;
+  }
+
+  .sound-toggle {
+    margin-top: 20px;
+    font-size: 16px;
+  }
+
+</style>
+</head>
+<body>
+
+<header>🔍 Verificador de Lotes - Put Away</header>
+
+<main>
+  <div class="input-card">
+    <h3>1️⃣ Escaneá el QR de la hoja</h3>
+    <input type="text" id="qrHoja" placeholder="Escaneá aquí..." autofocus>
+  </div>
+
+  <div class="input-card">
+    <h3>2️⃣ Escaneá el QR de la caja</h3>
+    <input type="text" id="qrCaja" placeholder="Escaneá aquí...">
+  </div>
+
+  <div id="resultado"></div>
+
+  <button onclick="reiniciar()">🔄 Reiniciar lote hoja</button>
+
+  <div class="sound-toggle">
+    <label><input type="checkbox" id="toggleSound" checked> 🔈 Sonido activado</label>
+  </div>
+</main>
+
+<!-- Sonidos -->
+<audio id="soundOk">
+  <source src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" type="audio/ogg">
+</audio>
+<audio id="soundError">
+  <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+</audio>
+
+<script>
+let loteHoja = "";
+
+// Escanear QR de hoja
+document.getElementById("qrHoja").addEventListener("change", function() {
+  loteHoja = this.value.trim();
+  document.getElementById("resultado").innerHTML = 
+    "📄 Lote de hoja guardado: <b>" + loteHoja + "</b>";
+  document.getElementById("resultado").className = "";
+  document.getElementById("qrCaja").focus();
+  this.value = "";
+});
+
+// Escanear QR de caja
+document.getElementById("qrCaja").addEventListener("change", function() {
+  const loteCaja = this.value.trim();
+  const resultado = document.getElementById("resultado");
+  const soundOn = document.getElementById("toggleSound").checked;
+
+  if (loteHoja === "") {
+    resultado.innerHTML = "⚠️ Primero escaneá el QR de la hoja.";
+    resultado.className = "error";
+  } else if (loteCaja === loteHoja) {
+    resultado.innerHTML = "✅ COINCIDE<br>(Lote: " + loteCaja + ")";
+    resultado.className = "ok";
+    if (soundOn) document.getElementById("soundOk").play();
+  } else {
+    resultado.innerHTML = "❌ ERROR - Lote distinto<br>Hoja: " + loteHoja + "<br>Caja: " + loteCaja;
+    resultado.className = "error";
+    if (soundOn) document.getElementById("soundError").play();
+  }
+
+  this.value = "";
+  this.focus();
+});
+
+function reiniciar() {
+  loteHoja = "";
+  document.getElementById("qrHoja").value = "";
+  document.getElementById("qrCaja").value = "";
+  document.getElementById("resultado").innerHTML = "";
+  document.getElementById("resultado").className = "";
+  document.getElementById("qrHoja").focus();
+}
+</script>
+
+</body>
+</html>
